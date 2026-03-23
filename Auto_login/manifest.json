@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "KL WiFi Captive portal Auto-Login",
+  "version": "1.0",
+  "description": "Automates login for KL WiFi captive portal.",
+  "permissions": ["activeTab", "scripting", "debugger"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      // !! CHANGE THIS URL MATCH PATTERN !!
+      "matches": ["https://captiveportal.kluniversity.in:8090/httpclient.html"],
+      "js": ["script.js"]
+    }
+  ]
+}

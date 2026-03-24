@@ -48,7 +48,7 @@ This system combines:
 
 ## ⚙️ Architecture
 
-```id="arch123"
+```
           ┌──────────────────────────┐
           │   WiFi Network (SSID)    │
           └────────────┬─────────────┘
@@ -87,10 +87,10 @@ Check Internet                     Not Authenticated
 
 ## 🏗️ Project Structure
 
-```id="struct456"
+```
 smart-captive-login/
 │
-├── chrome-extension/
+├── chrome-extension/   # ⚠️ Must be loaded manually in browser
 │   ├── manifest.json
 │   ├── background.js
 │   └── script.js
@@ -108,7 +108,7 @@ smart-captive-login/
 
 ### 1️⃣ Install Python Dependencies
 
-```bash id="cmd1"
+```bash
 pip install -r requirements.txt
 ```
 
@@ -118,7 +118,7 @@ pip install -r requirements.txt
 
 Edit `wifi_monitor.py`:
 
-```python id="cfg1"
+```python
 HOSTEL_SSID = "YOUR_WIFI_NAME"
 CAPTIVE_DOMAIN = "portal.domain.com"
 PORTAL_URL = "https://portal.login.page"
@@ -126,20 +126,58 @@ PORTAL_URL = "https://portal.login.page"
 
 ---
 
-### 3️⃣ Setup Chrome Extension
+## 🔌 Chrome Extension Installation (Required)
 
-* Go to: `chrome://extensions/`
-* Enable **Developer Mode**
-* Click **Load Unpacked**
-* Select `chrome-extension/`
+The auto-login module is a **Chrome Extension**, not a normal script.
+
+👉 It must be manually added to your browser.
+
+### 📂 Steps to Install
+
+1. Open Chrome and go to:
+
+   ```
+   chrome://extensions/
+   ```
+
+2. Enable:
+
+   * ✅ Developer Mode
+
+3. Click:
+
+   * 👉 Load Unpacked
+
+4. Select the folder:
+
+   ```
+   chrome-extension/
+   ```
 
 ---
 
-### 4️⃣ Add Credentials
+### ⚠️ Important Notes
 
-Update `script.js`:
+* Works only on Chromium-based browsers:
 
-```javascript id="cfg2"
+  * Google Chrome ✅
+  * Microsoft Edge ✅
+  * Brave ✅
+
+* Not supported:
+
+  * Firefox ❌
+  * Safari ❌
+
+* Extension must remain **enabled**
+
+---
+
+### 🔑 Add Your Credentials
+
+Edit `script.js`:
+
+```javascript
 chrome.runtime.sendMessage({
     type: "LOGIN",
     user: "YOUR_USERNAME",
@@ -152,7 +190,7 @@ chrome.runtime.sendMessage({
 
 ### ▶️ Run the System
 
-```bash id="cmd2"
+```bash
 python wifi_monitor.py
 ```
 
@@ -162,12 +200,12 @@ python wifi_monitor.py
 
 Uses:
 
-```id="logic123"
+```
 http://clients3.google.com/generate_204
 ```
 
 * ✅ 204 → Internet working
-* 🔁 Redirect → Captive portal active
+* 🔁 Redirect → Captive portal detected
 
 ---
 
@@ -202,7 +240,7 @@ http://clients3.google.com/generate_204
 
 * Works best with predictable captive portals
 * Requires Chrome (or Chromium-based browser)
-* Credentials stored in plain text (can be improved)
+* Credentials stored in plain text
 
 ---
 
@@ -224,6 +262,14 @@ http://clients3.google.com/generate_204
 
 ---
 
+## ⚠️ Disclaimer
+
+This tool is intended for **authorized and personal network use only**.
+
+Do NOT use it on networks where automation or credential injection is prohibited.
+
+---
+
 ## 🏆 Why This Project Matters
 
 This is a **real-world problem-solving project** that demonstrates:
@@ -236,7 +282,7 @@ This is a **real-world problem-solving project** that demonstrates:
 Perfect for:
 
 * 💼 Resume projects
-* 🧑‍💻 Dev productivity tools
+* 🧑‍💻 Developer productivity tools
 * 🧠 Practical engineering skills
 
 ---
@@ -251,4 +297,4 @@ MIT License
 
 Built for developers tired of logging into WiFi again and again 😄
 
--By Bhavvi 
+**— Bhavvi**

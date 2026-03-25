@@ -107,6 +107,35 @@ export CAPTIVE_INSECURE_TLS=false
 
 ### Run as a systemd Service (recommended for always-on servers)
 
+### Recommended Server File Placement
+
+Use this layout on your server so the script is easy to manage:
+
+```text
+/opt/captive-portal/server_auto_login.sh                 # executable script
+/etc/captive-portal/credentials.env                      # username/password (600)
+/etc/systemd/system/captive-portal-autologin.service     # service unit
+```
+
+### Deploy and run in background (exact steps)
+
+```bash
+# 1) Create app/config folders
+sudo install -d -m 755 /opt/captive-portal
+sudo install -d -m 700 /etc/captive-portal
+
+# 2) Copy script from this repo to server runtime location
+sudo cp /path/to/repo/server_auto_login.sh /opt/captive-portal/server_auto_login.sh
+sudo chmod 755 /opt/captive-portal/server_auto_login.sh
+
+# 3) Create credential file (root-only)
+sudo install -m 600 /dev/null /etc/captive-portal/credentials.env
+sudo nano /etc/captive-portal/credentials.env
+# Add:
+# CAPTIVE_USERNAME=YOUR_USERNAME
+# CAPTIVE_PASSWORD=YOUR_PASSWORD
+```
+
 Create `/etc/systemd/system/captive-portal-autologin.service`:
 
 ```ini
@@ -130,14 +159,21 @@ WantedBy=multi-user.target
 Then enable it:
 
 ```bash
-sudo install -d -m 700 /etc/captive-portal
-sudo install -m 600 /dev/null /etc/captive-portal/credentials.env
-sudo nano /etc/captive-portal/credentials.env
-# Add:
-# CAPTIVE_USERNAME=YOUR_USERNAME
-# CAPTIVE_PASSWORD=YOUR_PASSWORD
 sudo systemctl daemon-reload
 sudo systemctl enable --now captive-portal-autologin.service
+sudo systemctl status captive-portal-autologin.service
+sudo systemctl is-enabled captive-portal-autologin.service
+```
+
+Useful checks:
+
+```bash
+# Live logs
+sudo journalctl -u captive-portal-autologin.service -f
+
+# Verify service survives reboot
+sudo reboot
+# after login:
 sudo systemctl status captive-portal-autologin.service
 ```
 

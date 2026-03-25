@@ -117,8 +117,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-Environment=CAPTIVE_USERNAME=YOUR_USERNAME
-Environment=CAPTIVE_PASSWORD=YOUR_PASSWORD
+EnvironmentFile=/etc/captive-portal/credentials.env
 WorkingDirectory=/opt/captive-portal
 ExecStart=/opt/captive-portal/server_auto_login.sh
 Restart=always
@@ -131,6 +130,9 @@ WantedBy=multi-user.target
 Then enable it:
 
 ```bash
+sudo install -d -m 700 /etc/captive-portal
+sudo sh -c 'printf "CAPTIVE_USERNAME=YOUR_USERNAME\nCAPTIVE_PASSWORD=YOUR_PASSWORD\n" > /etc/captive-portal/credentials.env'
+sudo chmod 600 /etc/captive-portal/credentials.env
 sudo systemctl daemon-reload
 sudo systemctl enable --now captive-portal-autologin.service
 sudo systemctl status captive-portal-autologin.service

@@ -10,6 +10,7 @@ CAPTIVE_PASS_FIELD="${CAPTIVE_PASS_FIELD:-password}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-120}"
 POST_LOGIN_WAIT="${POST_LOGIN_WAIT:-8}"
 CURL_TIMEOUT="${CURL_TIMEOUT:-10}"
+MAX_REDIRECTS="${MAX_REDIRECTS:-8}"
 CAPTIVE_RUN_ONCE="${CAPTIVE_RUN_ONCE:-false}"
 
 CAPTIVE_USERNAME="${CAPTIVE_USERNAME:-}"
@@ -31,6 +32,7 @@ Optional variables:
   CHECK_URL           (default: http://clients3.google.com/generate_204)
   CHECK_INTERVAL      (default: 120 seconds)
   POST_LOGIN_WAIT     (default: 8 seconds)
+  MAX_REDIRECTS       (default: 8)
   CAPTIVE_RUN_ONCE    (true/false, default: false)
   CAPTIVE_INSECURE_TLS (true/false, default: false)
 EOF
@@ -67,7 +69,7 @@ host_matches_domain() {
 
 is_authenticated() {
   local result status_code final_url
-  result="$(curl -sS -L --proto '=http,https' --max-time "$CURL_TIMEOUT" -o /dev/null -w '%{http_code} %{url_effective}' "$CHECK_URL" 2>/dev/null || true)"
+  result="$(curl -sS -L --max-redirs "$MAX_REDIRECTS" --proto '=http,https' --max-time "$CURL_TIMEOUT" -o /dev/null -w '%{http_code} %{url_effective}' "$CHECK_URL" 2>/dev/null || true)"
   [ -n "$result" ] || return 1
 
   status_code="${result%% *}"
@@ -88,6 +90,7 @@ login_captive_portal() {
   local curl_args=(
     -sS
     -L
+    --max-redirs "$MAX_REDIRECTS"
     --proto '=http,https'
     --max-time "$CURL_TIMEOUT"
     -X POST "$CAPTIVE_LOGIN_URL"

@@ -125,6 +125,7 @@ sudo install -d -m 755 /opt/captive-portal
 sudo install -d -m 700 /etc/captive-portal
 
 # 2) Copy script from this repo to server runtime location
+# Replace /path/to/repo with your actual clone path (example: /home/user/captive-portal-autologin)
 sudo cp /path/to/repo/server_auto_login.sh /opt/captive-portal/server_auto_login.sh
 sudo chmod 755 /opt/captive-portal/server_auto_login.sh
 
@@ -149,6 +150,8 @@ Type=simple
 EnvironmentFile=/etc/captive-portal/credentials.env
 WorkingDirectory=/opt/captive-portal
 ExecStart=/opt/captive-portal/server_auto_login.sh
+StandardOutput=journal
+StandardError=journal
 Restart=always
 RestartSec=5
 

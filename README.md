@@ -74,6 +74,114 @@ Check Internet                     Not Authenticated
 
 ---
 
+## 🖧 Headless Server Mode (NAS / Proxmox / Linux Servers)
+
+For servers without GUI/browser, use the shell script:
+
+```bash
+chmod +x server_auto_login.sh
+export CAPTIVE_USERNAME="YOUR_USERNAME"
+export CAPTIVE_PASSWORD="YOUR_PASSWORD"
+./server_auto_login.sh
+```
+
+This script:
+
+* Checks connectivity using `http://clients3.google.com/generate_204`
+* Detects captive-portal redirects
+* Submits credentials with `curl` (no browser required)
+* Keeps running in a loop (or once, if configured)
+
+### Optional Environment Variables
+
+```bash
+export CAPTIVE_LOGIN_URL="https://captiveportal.kluniversity.in:8090/httpclient.html"
+export CAPTIVE_MATCH_DOMAIN="captiveportal.kluniversity.in"
+export CAPTIVE_USER_FIELD="username"
+export CAPTIVE_PASS_FIELD="password"
+export CHECK_INTERVAL=120
+export POST_LOGIN_WAIT=8
+export CAPTIVE_RUN_ONCE=false
+export CAPTIVE_INSECURE_TLS=false
+```
+
+### Run as a systemd Service (recommended for always-on servers)
+
+### Recommended Server File Placement
+
+Use this layout on your server so the script is easy to manage:
+
+```text
+/opt/captive-portal/server_auto_login.sh                 # executable script
+/etc/captive-portal/credentials.env                      # username/password (600)
+/etc/systemd/system/captive-portal-autologin.service     # service unit
+```
+
+### Deploy and run in background (exact steps)
+
+```bash
+# 1) Create app/config folders
+sudo install -d -m 755 /opt/captive-portal
+sudo install -d -m 700 /etc/captive-portal
+
+# 2) Copy script from this repo to server runtime location
+# Replace /path/to/repo with your actual clone path (example: /home/user/captive-portal-autologin)
+sudo cp /path/to/repo/server_auto_login.sh /opt/captive-portal/server_auto_login.sh
+sudo chmod 755 /opt/captive-portal/server_auto_login.sh
+
+# 3) Create credential file (root-only)
+sudo install -m 600 /dev/null /etc/captive-portal/credentials.env
+sudo nano /etc/captive-portal/credentials.env
+# Add:
+# CAPTIVE_USERNAME=YOUR_USERNAME
+# CAPTIVE_PASSWORD=YOUR_PASSWORD
+```
+
+Create `/etc/systemd/system/captive-portal-autologin.service`:
+
+```ini
+[Unit]
+Description=Captive Portal Auto Login
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/captive-portal/credentials.env
+WorkingDirectory=/opt/captive-portal
+ExecStart=/opt/captive-portal/server_auto_login.sh
+StandardOutput=journal
+StandardError=journal
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then enable it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now captive-portal-autologin.service
+sudo systemctl status captive-portal-autologin.service
+sudo systemctl is-enabled captive-portal-autologin.service
+```
+
+Useful checks:
+
+```bash
+# Live logs
+sudo journalctl -u captive-portal-autologin.service -f
+
+# Verify service survives reboot
+sudo reboot
+# after login:
+sudo systemctl status captive-portal-autologin.service
+```
+
+---
+
 ## 📌 Key Features
 
 * 🔁 Continuous WiFi monitoring
